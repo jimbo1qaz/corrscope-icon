@@ -104,4 +104,4 @@ for freq in freqs:
     i += di
 
 
-plt.show()
+plt.savefig('icon.png', transparent=True)
