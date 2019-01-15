@@ -43,27 +43,30 @@ xs = np.linspace(-XMAX, XMAX, NPOINTS)
 
 
 def sinusoid(dx=1, ysc=1):
-    return lambda xs: costau(xs + dx) * ysc
+    return lambda xs: costau(xs - dx) * ysc
 
 
 def plot_windowed(func, **kwargs):
-    plt.plot(func(xs * FREQ) * win(xs), **kwargs)
+    plt.plot(xs, func(xs * FREQ) * win(xs), **kwargs)
 
 
 def plot_sinusoid(dx, alpha):
-    plot_windowed(sinusoid(dx=dx), alpha=alpha, color=cmap(0))
+    plot_windowed(sinusoid(dx=dx), alpha=alpha, label=f"{dx}")
+    # color=cmap(0)
 
 
 NLINE = 2
-den_dx = NLINE + 0.5
-den_alpha = (NLINE + 1)
+den_dx = NLINE
+den_alpha = NLINE + 1
 
 for i in range(1, NLINE + 1)[::-1]:
     dx = i / den_dx
-    alpha = NOT(i / den_alpha) ** 1.5
+    alpha = NOT(i / den_alpha) ** 3
     plot_sinusoid(dx=dx, alpha=alpha)
     plot_sinusoid(dx=-dx, alpha=alpha)
 
 plot_sinusoid(0, 1)
 
+plt.legend()
+plt.gca().set_aspect('equal', adjustable='box')
 plt.show()
