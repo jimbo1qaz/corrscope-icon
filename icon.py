@@ -19,8 +19,10 @@ class Config:
 def main():
     cfgs = [
         #
-        Config(256, line_width=4, nline=4),
+        Config(256, line_width=4, nline=3),
         Config(48, line_width=2, nline=3),
+        Config(32, line_width=2, nline=2),
+        Config(16, line_width=1, nline=2),
     ]
     for cfg in cfgs:
         do_it(cfg)
