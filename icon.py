@@ -17,7 +17,7 @@ mpl.rcParams["patch.linewidth"] = 0  # doesn't work
 tau = 2 * np.pi
 NPOINTS = 1000
 XMAX = 1
-FREQ = 1.5
+FREQ = 1.3
 
 
 def NOT(x):
@@ -33,9 +33,11 @@ def costau(x):
 
 
 def win(xs):
-    W = 0.4
-    return np.exp(-(xs / W) ** 2)
-    # return np.hanning(NPOINTS)
+    assert xs[0] == -1
+    assert xs[-1] == 1
+
+    W = .5
+    return np.exp(-(xs / W) ** 2) * costau(xs / 4)
 
 
 # plot
@@ -68,5 +70,5 @@ for i in range(1, NLINE + 1)[::-1]:
 plot_sinusoid(0, 1)
 
 plt.legend()
-plt.gca().set_aspect('equal', adjustable='box')
+plt.gca().set_aspect("equal", adjustable="box")
 plt.show()
