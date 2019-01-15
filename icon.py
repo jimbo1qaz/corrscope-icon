@@ -73,19 +73,22 @@ def sinusoid(dx, freq=1, yscale=1):
     return lambda xs: sintau((xs - dx) * freq) * yscale
 
 
-def plot_sinusoid(dx, freq, yscale, alpha):
+def plot_sinusoid(dx, freq, yscale, alpha, color=None):
     func = sinusoid(dx, freq, yscale)
-    plt.plot(xs, func(xs) * win(xs), alpha=alpha, linewidth=line_width)
+    plt.plot(xs, func(xs) * win(xs), alpha=alpha, color=color, linewidth=line_width)
 
 
-NLINE = 1
+NLINE = 4
 max_dx = 0.2
 min_alpha = 0.5
 
 
 e = 0
-for freq in np.geomspace(0.2, 1, 4):
+i = NLINE - 1
+for freq in np.geomspace(0.2, 1, NLINE)[::-1]:
     plot_sinusoid(0, freq=freq, yscale=freq ** e, alpha=1)
+    # color=cmap(i)
+    i -= 1
 
 
 plt.show()
