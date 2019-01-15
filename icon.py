@@ -45,7 +45,7 @@ xs = np.linspace(-XMAX, XMAX, NPOINTS)
 
 
 def sinusoid(dx=1, ysc=1):
-    return lambda xs: costau(xs - dx) * ysc
+    return lambda xs: sintau(xs - dx) * ysc
 
 
 def plot_windowed(func, **kwargs):
@@ -61,8 +61,8 @@ def plot_sinusoid(dx, alpha):
 
 
 NLINE = 1
-max_dx = 0.4
-min_alpha = 0.5
+max_dx = 0.2
+min_alpha = .5
 
 plot_sinusoid(0, 1)
 
