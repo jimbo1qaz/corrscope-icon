@@ -20,6 +20,8 @@ def main():
     cfgs = [
         #
         Config(256, line_width=4, nline=3),
+        Config(128, line_width=3, nline=3),
+        Config(96, line_width=2.5, nline=3),
         Config(48, line_width=2, nline=3),
         Config(32, line_width=2, nline=2),
         Config(16, line_width=1, nline=2),
