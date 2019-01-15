@@ -1,16 +1,33 @@
 # TODO: use a real vector graphics language with gradient/shadow support
 
-import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import matplotlib.patches as patches
-
+import numpy as np
+from matplotlib.axes import Axes
 
 cmap = plt.get_cmap("tab10")
 
 
-mpl.rcParams["patch.linewidth"] = 0  # doesn't work
+DPI = 96
+width = height = 256
+line_width = 4
+
+
+fig = plt.gcf()
+fig.set_tight_layout(False)
+ax: Axes = fig.subplots(
+    1,
+    1,
+    subplot_kw=dict(xticks=[], yticks=[]),
+    gridspec_kw=dict(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0),
+)
+ax.get_xaxis().set_visible(False)
+ax.get_yaxis().set_visible(False)
+ax.set_axis_off()
+ax.set_xlim(-1, 1)
+ax.set_ylim(-1, 1)
+
+fig.set_dpi(DPI)
+fig.set_size_inches(width / DPI, height / DPI)
 
 
 # params
@@ -49,16 +66,16 @@ def win(xs):
 xs = np.linspace(-XMAX, XMAX, NPOINTS)
 
 
-def sinusoid(dx=1, ysc=1):
-    return lambda xs: sintau(xs - dx) * ysc
+def sinusoid(dx, freq=1, yscale=1):
+    # sintau
+    # x: compress=freq, shift=dx
+    # y: mul=yscale
+    return lambda xs: sintau((xs - dx) * freq) * yscale
 
 
-def plot_windowed(func, freq, **kwargs):
-    plt.plot(xs, func(xs * freq) * win(xs), **kwargs)
-
-
-def plot_sinusoid(dx, freq, yscale, alpha, **kwargs):
-    plot_windowed(sinusoid(dx), freq=freq, alpha=alpha, label=f"{dx}", **kwargs)
+def plot_sinusoid(dx, freq, yscale, alpha):
+    func = sinusoid(dx, freq, yscale)
+    plt.plot(xs, func(xs) * win(xs), alpha=alpha, linewidth=line_width)
 
 
 NLINE = 1
@@ -66,10 +83,9 @@ max_dx = 0.2
 min_alpha = 0.5
 
 
-e = 0.1
-for freq in np.geomspace(.4, 1.5, 4):
+e = 0
+for freq in np.geomspace(0.2, 1, 4):
     plot_sinusoid(0, freq=freq, yscale=freq ** e, alpha=1)
 
-plt.legend()
-plt.gca().set_aspect("equal", adjustable="box")
+
 plt.show()
