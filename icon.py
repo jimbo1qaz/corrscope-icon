@@ -53,32 +53,22 @@ def sinusoid(dx=1, ysc=1):
     return lambda xs: sintau(xs - dx) * ysc
 
 
-def plot_windowed(func, **kwargs):
-    plt.plot(xs, func(xs * FREQ) * win(xs), **kwargs)
+def plot_windowed(func, freq, **kwargs):
+    plt.plot(xs, func(xs * freq) * win(xs), **kwargs)
 
 
-def plot_sinusoid(dx, alpha):
-    kwargs = dict(
-        #
-        # color=cmap(0)
-    )
-    plot_windowed(sinusoid(dx=dx), alpha=alpha, label=f"{dx}", **kwargs)
+def plot_sinusoid(dx, freq, yscale, alpha, **kwargs):
+    plot_windowed(sinusoid(dx), freq=freq, alpha=alpha, label=f"{dx}", **kwargs)
 
 
 NLINE = 1
 max_dx = 0.2
 min_alpha = 0.5
 
-plot_sinusoid(0, 1)
 
-for i in range(1, NLINE + 1):
-    percent = i / NLINE
-
-    dx = percent * max_dx
-    alpha = lerp(1, min_alpha, percent)
-
-    plot_sinusoid(dx=dx, alpha=alpha)
-    plot_sinusoid(dx=-dx, alpha=alpha)
+e = 0.1
+for freq in np.geomspace(.4, 1.5, 4):
+    plot_sinusoid(0, freq=freq, yscale=freq ** e, alpha=1)
 
 plt.legend()
 plt.gca().set_aspect("equal", adjustable="box")
