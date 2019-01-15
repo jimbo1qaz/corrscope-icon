@@ -59,13 +59,13 @@ def plot_sinusoid(dx, alpha):
 
 NLINE = 2
 den_dx = NLINE
-den_alpha = NLINE + 1
+den_alpha = NLINE
 
 plot_sinusoid(0, 1)
 
 for i in range(1, NLINE + 1):
-    dx = i / den_dx
-    alpha = NOT(i / den_alpha) ** 3
+    dx = i / den_dx / 2
+    alpha = NOT(i / den_alpha)
     plot_sinusoid(dx=dx, alpha=alpha)
     plot_sinusoid(dx=-dx, alpha=alpha)
 
