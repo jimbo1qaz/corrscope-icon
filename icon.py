@@ -7,7 +7,7 @@ from matplotlib.cm import get_cmap
 from matplotlib.figure import Figure
 
 cmap = get_cmap("tab10")
-order = [0, 1, 2, 3]
+order = [0, 3, 2, 1]
 cmap = [cmap(x) for x in order].__getitem__
 
 
