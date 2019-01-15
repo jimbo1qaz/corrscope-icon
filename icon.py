@@ -36,7 +36,7 @@ def win(xs):
     assert xs[0] == -1
     assert xs[-1] == 1
 
-    W = .5
+    W = 0.5
     return np.exp(-(xs / W) ** 2) * costau(xs / 4)
 
 
@@ -61,13 +61,13 @@ NLINE = 2
 den_dx = NLINE
 den_alpha = NLINE + 1
 
-for i in range(1, NLINE + 1)[::-1]:
+plot_sinusoid(0, 1)
+
+for i in range(1, NLINE + 1):
     dx = i / den_dx
     alpha = NOT(i / den_alpha) ** 3
     plot_sinusoid(dx=dx, alpha=alpha)
     plot_sinusoid(dx=-dx, alpha=alpha)
-
-plot_sinusoid(0, 1)
 
 plt.legend()
 plt.gca().set_aspect("equal", adjustable="box")
