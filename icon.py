@@ -20,8 +20,8 @@ XMAX = 1
 FREQ = 1.3
 
 
-def NOT(x):
-    return 1 - x
+def lerp(x, y, a: float):
+    return x * (1 - a) + y * a
 
 
 def sintau(x):
@@ -53,19 +53,25 @@ def plot_windowed(func, **kwargs):
 
 
 def plot_sinusoid(dx, alpha):
-    plot_windowed(sinusoid(dx=dx), alpha=alpha, label=f"{dx}")
-    # color=cmap(0)
+    kwargs = dict(
+        #
+        # color=cmap(0)
+    )
+    plot_windowed(sinusoid(dx=dx), alpha=alpha, label=f"{dx}", **kwargs)
 
 
-NLINE = 2
-den_dx = NLINE
-den_alpha = NLINE
+NLINE = 1
+max_dx = 0.4
+min_alpha = 0.5
 
 plot_sinusoid(0, 1)
 
 for i in range(1, NLINE + 1):
-    dx = i / den_dx / 2
-    alpha = NOT(i / den_alpha)
+    percent = i / NLINE
+
+    dx = percent * max_dx
+    alpha = lerp(1, min_alpha, percent)
+
     plot_sinusoid(dx=dx, alpha=alpha)
     plot_sinusoid(dx=-dx, alpha=alpha)
 
