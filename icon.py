@@ -32,12 +32,17 @@ def costau(x):
     return np.cos(tau * x)
 
 
+gauss = lambda xs, W: np.exp(-(xs / W) ** 2)
+cos_win = lambda xs: costau(xs / 4)
+
+
 def win(xs):
     assert xs[0] == -1
     assert xs[-1] == 1
 
-    W = 0.5
-    return np.exp(-(xs / W) ** 2) * costau(xs / 4)
+    W = 0.6
+    e = 1
+    return gauss(xs, W) * cos_win(xs) ** e
 
 
 # plot
@@ -62,7 +67,7 @@ def plot_sinusoid(dx, alpha):
 
 NLINE = 1
 max_dx = 0.2
-min_alpha = .5
+min_alpha = 0.5
 
 plot_sinusoid(0, 1)
 
