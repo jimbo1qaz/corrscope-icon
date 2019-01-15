@@ -6,27 +6,31 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.patches as patches
 
-mpl.rcParams['patch.linewidth'] = 0  # doesn't work
+mpl.rcParams["patch.linewidth"] = 0  # doesn't work
 
-tau = 2*np.pi
+tau = 2 * np.pi
 NX = 1000
 X = 1
 F = 1.5
 
+
 def win(xs):
-    W = .4
-    return np.exp(- (xs/W) ** 2)
+    W = 0.4
+    return np.exp(-(xs / W) ** 2)
     # return np.hanning(NX)
 
+
 xs = np.linspace(-X, X, NX)
+
 
 def graph(func):
     plt.plot(func(xs * tau * F) * win(xs))
 
+
 # plt.plot(xs, ys)
 graph(np.sin)
 # graph(lambda xs: np.cos(xs)*.85)
-graph(lambda xs: np.sin(xs + tau*1/3) * .75)
+graph(lambda xs: np.sin(xs + tau * 1 / 3) * 0.75)
 plt.show()
 
 
