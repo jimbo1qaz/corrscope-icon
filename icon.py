@@ -81,14 +81,27 @@ def plot_sinusoid(dx, freq, yscale, alpha, color=None):
 NLINE = 4
 max_dx = 0.2
 min_alpha = 0.5
+top = "narrow"
+blue = "narrow"
 
+
+top_blue = top == blue
+if top_blue:
+    i = NLINE - 1
+    di = -1
+else:
+    i = 0
+    di = 1
+
+freqs = np.geomspace(0.2, 1, NLINE)
+if top == "wide":
+    freqs = freqs[::-1]
 
 e = 0
-i = NLINE - 1
-for freq in np.geomspace(0.2, 1, NLINE)[::-1]:
-    plot_sinusoid(0, freq=freq, yscale=freq ** e, alpha=1)
-    # color=cmap(i)
-    i -= 1
+
+for freq in freqs:
+    plot_sinusoid(0, freq=freq, yscale=freq ** e, alpha=1, color=cmap(i))
+    i += di
 
 
 plt.show()
