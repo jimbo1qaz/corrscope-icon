@@ -1,4 +1,4 @@
-# TODO: use a real vector graphics language with gradient/shadow support
+from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,9 +7,16 @@ from matplotlib.axes import Axes
 cmap = plt.get_cmap("tab10")
 
 
+@dataclass
+class Config:
+    dim: int
+    line_width: float
+    nline: int
+
+
+cfg = Config(256, 4, 4)
+
 DPI = 96
-width = height = 256
-line_width = 4
 
 
 fig = plt.gcf()
@@ -27,7 +34,7 @@ ax.set_xlim(-1, 1)
 ax.set_ylim(-1, 1)
 
 fig.set_dpi(DPI)
-fig.set_size_inches(width / DPI, height / DPI)
+fig.set_size_inches(cfg.dim / DPI, cfg.dim / DPI)
 
 
 # params
@@ -75,25 +82,22 @@ def sinusoid(dx, freq=1, yscale=1):
 
 def plot_sinusoid(dx, freq, yscale, alpha, color=None):
     func = sinusoid(dx, freq, yscale)
-    plt.plot(xs, func(xs) * win(xs), alpha=alpha, color=color, linewidth=line_width)
+    plt.plot(xs, func(xs) * win(xs), alpha=alpha, color=color, linewidth=cfg.line_width)
 
 
-NLINE = 4
-max_dx = 0.2
-min_alpha = 0.5
 top = "narrow"
 blue = "narrow"
 
 
 top_blue = top == blue
 if top_blue:
-    i = NLINE - 1
+    i = cfg.nline - 1
     di = -1
 else:
     i = 0
     di = 1
 
-freqs = np.geomspace(0.2, 1, NLINE)
+freqs = np.geomspace(0.2, 1, cfg.nline)
 if top == "wide":
     freqs = freqs[::-1]
 
@@ -104,4 +108,4 @@ for freq in freqs:
     i += di
 
 
-plt.savefig('icon.png', transparent=True)
+plt.savefig(f'{cfg.dim}.png', transparent=True)
