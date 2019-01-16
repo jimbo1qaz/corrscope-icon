@@ -175,10 +175,7 @@ def do_it(cfg):
         assert rgba.dtype == np.float32
         del premul_planar_rgba, rgb, a
 
-        # print(rgba.shape)
-        imageio.imsave(str(rgba.shape)+'.png', (255*rgba).astype(np.uint8))
-        # print(rgba)
-        img: AxesImage = line_plot.ax.imshow(rgba)
+        img: AxesImage = line_plot.ax.imshow(rgba, extent=[-1, 1, -1, 1])
         # img.set_zorder(-100)
 
         # return render_rgba(line_plot)
