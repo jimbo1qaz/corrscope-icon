@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
-
-import imageio
 import numpy as np
+from matplotlib import colors
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.cm import get_cmap
@@ -103,14 +102,14 @@ def do_it(cfg):
         # y: mul=yscale
         return lambda xs: sintau((xs - dx) * freq) * yscale
 
-    def plot_sinusoid(dx, freq, yscale, alpha, fill_alpha, color=None):
+    def plot_sinusoid(dx, freq, yscale, color=None):
         func = sinusoid(dx, freq, yscale)
         ys = func(xs) * win(xs)
 
-        line_plot.ax.plot(xs, ys, alpha=alpha, color=color, linewidth=cfg.line_width)
+        line_plot.ax.plot(xs, ys, color=color, linewidth=cfg.line_width)
 
         fill = get_fig_ax()
-        fill.ax.fill_between(xs, ys, 0, facecolor=color, alpha=fill_alpha)
+        fill.ax.fill_between(xs, ys, 0, facecolor=color)
         fill_plots.append(fill)
 
     line_plot: FigAx = get_fig_ax()
@@ -142,7 +141,7 @@ def do_it(cfg):
         rgb *= a
         return planar_rgba
 
-    def compute_image() -> Figure:
+    def compute_image(overlay_color) -> Figure:
         """
         my idea is "draw each fill individually opaque",
         "sum up premultiplied rgba values",
@@ -166,6 +165,15 @@ def do_it(cfg):
         assert np.amax(a) == 1
         rgb /= np.maximum(a, 1e-6)  # epsilon
         assert np.amax(rgb) <= 1, np.amax(rgb)
+
+        # Overlay color
+        overlay_color = colors.to_rgba_array(overlay_color).reshape(-1, 1, 1)
+        orgb, oa = overlay_color[:-1], overlay_color[-1:]
+        orgb **= GAMMA
+        orgb *= oa
+        # bottom.rgb = ((top.rgb * top.a) * One) + (bottom.rgb * (1 - top.a));
+        One = 1
+        rgb[:] = ((orgb * oa) * One) + (rgb * (1 - oa))
 
         # compress to gamma
         rgb **= 1 / GAMMA
@@ -199,12 +207,10 @@ def do_it(cfg):
     e = 0
 
     for freq in freqs:
-        plot_sinusoid(
-            0, freq=freq, yscale=freq ** e, alpha=1, fill_alpha=0.5, color=cmap(i)
-        )
+        plot_sinusoid(0, freq=freq, yscale=freq ** e, color=cmap(i))
         i += di
 
-    compute_image().savefig(f"{cfg.dim}.png", transparent=True)
+    compute_image(overlay_color=(1,1,1,.5)).savefig(f"{cfg.dim}.png", transparent=True)
 
 
 if __name__ == "__main__":
