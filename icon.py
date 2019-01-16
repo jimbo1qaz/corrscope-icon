@@ -141,7 +141,7 @@ def do_it(cfg):
         rgb *= a
         return planar_rgba
 
-    def compute_image(overlay_color) -> Figure:
+    def compute_image(fill_alpha) -> Figure:
         """
         my idea is "draw each fill individually opaque",
         "sum up premultiplied rgba values",
@@ -170,12 +170,7 @@ def do_it(cfg):
         rgb **= 1 / GAMMA
 
         # Overlay color
-        overlay_color = colors.to_rgba_array(overlay_color).reshape(-1, 1, 1)
-        orgb, oa = overlay_color[:-1], overlay_color[-1:]
-        orgb *= oa
-        # bottom.rgb = ((top.rgb * top.a) * One) + (bottom.rgb * (1 - top.a));
-        One = 1
-        rgb[:] = ((orgb * oa) * One) + (rgb * (1 - oa))
+        a *= fill_alpha
 
         # uwu
         rgba = np.moveaxis(premul_planar_rgba, 0, -1).copy("C")
@@ -209,7 +204,7 @@ def do_it(cfg):
         plot_sinusoid(0, freq=freq, yscale=freq ** e, color=cmap(i))
         i += di
 
-    compute_image(overlay_color=(1,1,1,.75)).savefig(f"{cfg.dim}.png", transparent=True)
+    compute_image(fill_alpha=0.5).savefig(f"{cfg.dim}.png", transparent=True)
 
 
 if __name__ == "__main__":
