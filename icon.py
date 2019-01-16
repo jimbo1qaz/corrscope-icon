@@ -25,9 +25,9 @@ class Config:
 def main():
     cfgs = [
         #
-        Config(256, line_width=3, nline=3),
-        Config(96, line_width=2, nline=3),
-        Config(48, line_width=1.5, nline=3),
+        Config(256, line_width=3, nline=2),
+        Config(96, line_width=2, nline=2),
+        Config(48, line_width=1.5, nline=2),
         Config(32, line_width=1, nline=2),
         Config(16, line_width=0.75, nline=2),
     ]
@@ -203,7 +203,7 @@ def do_it(cfg) -> Ret:
         i = 0
         di = 1
 
-    freqs = np.geomspace(0.2, 1, cfg.nline)
+    freqs = np.geomspace(0.3, 1, cfg.nline)
     if top == "wide":
         freqs = freqs[::-1]
 
