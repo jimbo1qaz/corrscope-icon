@@ -166,17 +166,16 @@ def do_it(cfg):
         rgb /= np.maximum(a, 1e-6)  # epsilon
         assert np.amax(rgb) <= 1, np.amax(rgb)
 
+        # compress to gamma
+        rgb **= 1 / GAMMA
+
         # Overlay color
         overlay_color = colors.to_rgba_array(overlay_color).reshape(-1, 1, 1)
         orgb, oa = overlay_color[:-1], overlay_color[-1:]
-        orgb **= GAMMA
         orgb *= oa
         # bottom.rgb = ((top.rgb * top.a) * One) + (bottom.rgb * (1 - top.a));
         One = 1
         rgb[:] = ((orgb * oa) * One) + (rgb * (1 - oa))
-
-        # compress to gamma
-        rgb **= 1 / GAMMA
 
         # uwu
         rgba = np.moveaxis(premul_planar_rgba, 0, -1).copy("C")
@@ -210,7 +209,7 @@ def do_it(cfg):
         plot_sinusoid(0, freq=freq, yscale=freq ** e, color=cmap(i))
         i += di
 
-    compute_image(overlay_color=(1,1,1,.5)).savefig(f"{cfg.dim}.png", transparent=True)
+    compute_image(overlay_color=(1,1,1,.75)).savefig(f"{cfg.dim}.png", transparent=True)
 
 
 if __name__ == "__main__":
