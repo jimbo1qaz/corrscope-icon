@@ -26,7 +26,6 @@ def main():
     cfgs = [
         #
         Config(256, line_width=3, nline=2),
-        Config(96, line_width=2, nline=2),
         Config(48, line_width=1.5, nline=2),
         Config(32, line_width=1, nline=2),
         Config(16, line_width=0.75, nline=2),
