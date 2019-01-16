@@ -35,7 +35,9 @@ def main():
         ret = do_it(cfg)
         fnames.append(ret.fname)
 
-    subprocess.run(["magick", "convert"] + fnames + ["icon.ico"], check=True)
+    icon256 = "icon256.ico"
+    subprocess.run(["magick", "convert", *fnames[2:], "-colors", "256", icon256], check=True)
+    subprocess.run(["magick", "convert", *fnames, icon256, "icon.ico"], check=True)
 
 
 @dataclass
