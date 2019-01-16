@@ -112,7 +112,6 @@ def do_it(cfg):
         fill = get_fig_ax()
         fill.ax.fill_between(xs, ys, 0, facecolor=color, alpha=fill_alpha)
         fill_plots.append(fill)
-        # fill.fig.savefig("uwu.png", transparent=True)
 
     line_plot: FigAx = get_fig_ax()
     fill_plots: List[FigAx] = []
@@ -173,11 +172,12 @@ def do_it(cfg):
 
         # uwu
         rgba = np.moveaxis(premul_planar_rgba, 0, -1).copy("C")
+        assert rgba.dtype == np.float32
         del premul_planar_rgba, rgb, a
 
         # print(rgba.shape)
-        # imageio.imsave(str(rgba.shape)+'.png', (255*rgba).astype(np.int8))
-        print(rgba)
+        imageio.imsave(str(rgba.shape)+'.png', (255*rgba).astype(np.uint8))
+        # print(rgba)
         img: AxesImage = line_plot.ax.imshow(rgba)
         # img.set_zorder(-100)
 
