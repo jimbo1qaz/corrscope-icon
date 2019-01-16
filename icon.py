@@ -1,10 +1,14 @@
 from dataclasses import dataclass
+from typing import List, Tuple
 
+
+import imageio
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.cm import get_cmap
 from matplotlib.figure import Figure
+from matplotlib.image import AxesImage
 
 cmap = get_cmap("tab10")
 order = [0, 3, 2, 1]
@@ -32,25 +36,37 @@ def main():
         do_it(cfg)
 
 
+@dataclass
+class FigAx:
+    fig: Figure
+    ax: Axes
+
+
 def do_it(cfg):
     DPI = 96
+    FLOAT = np.float32
+    GAMMA = 2.2
 
-    fig = Figure()
-    FigureCanvasAgg(fig)
-    ax: Axes = fig.subplots(
-        1,
-        1,
-        subplot_kw=dict(xticks=[], yticks=[]),
-        gridspec_kw=dict(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0),
-    )
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    ax.set_axis_off()
-    ax.set_xlim(-1, 1)
-    ax.set_ylim(-1, 1)
+    def get_fig_ax() -> FigAx:
+        fig = Figure()
+        fig.set_facecolor("#00000000")
+        FigureCanvasAgg(fig)
+        ax: Axes = fig.subplots(
+            1,
+            1,
+            subplot_kw=dict(xticks=[], yticks=[]),
+            gridspec_kw=dict(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0),
+        )
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.set_axis_off()
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 1)
 
-    fig.set_dpi(DPI)
-    fig.set_size_inches(cfg.dim / DPI, cfg.dim / DPI)
+        fig.set_dpi(DPI)
+        fig.set_size_inches(cfg.dim / DPI, cfg.dim / DPI)
+
+        return FigAx(fig, ax)
 
     # params
     tau = 2 * np.pi
@@ -87,11 +103,86 @@ def do_it(cfg):
         # y: mul=yscale
         return lambda xs: sintau((xs - dx) * freq) * yscale
 
-    def plot_sinusoid(dx, freq, yscale, alpha, color=None):
+    def plot_sinusoid(dx, freq, yscale, alpha, fill_alpha, color=None):
         func = sinusoid(dx, freq, yscale)
-        ax.plot(
-            xs, func(xs) * win(xs), alpha=alpha, color=color, linewidth=cfg.line_width
-        )
+        ys = func(xs) * win(xs)
+
+        line_plot.ax.plot(xs, ys, alpha=alpha, color=color, linewidth=cfg.line_width)
+
+        fill = get_fig_ax()
+        fill.ax.fill_between(xs, ys, 0, facecolor=color, alpha=fill_alpha)
+        fill_plots.append(fill)
+        # fill.fig.savefig("uwu.png", transparent=True)
+
+    line_plot: FigAx = get_fig_ax()
+    fill_plots: List[FigAx] = []
+
+    RGB_A = Tuple[np.ndarray, np.ndarray]
+    RGBA = np.ndarray
+
+    def get_rgb_a(rgba):
+        return rgba[:-1], rgba[-1:]
+
+    def render_rgba(plot) -> np.ndarray:
+        """ returns int """
+        canvas: FigureCanvasAgg = plot.fig.canvas
+        canvas.draw()
+
+        wh = canvas.get_width_height()
+        rgba = np.frombuffer(canvas.buffer_rgba(), dtype=np.uint8).reshape(*wh, 4)
+        return rgba
+
+    def get_premul_planar_rgba(plot: FigAx) -> RGBA:
+        rgba = render_rgba(plot)
+        planar_rgba = np.moveaxis(rgba, -1, 0).astype(FLOAT, order="C")
+        planar_rgba /= 255
+
+        rgb, a = get_rgb_a(planar_rgba)
+        # linearize
+        rgb **= GAMMA
+        rgb *= a
+        return planar_rgba
+
+    def compute_image() -> Figure:
+        """
+        my idea is "draw each fill individually opaque",
+        "sum up premultiplied rgba values",
+        "divide rgb by sum of alpha",
+        "replace alpha with max alpha of any fill", and
+        "draw lines on top"
+        """
+
+        rgba_s = [get_premul_planar_rgba(plot) for plot in fill_plots]
+        # rgbs = [rgba[:, :-1] for rgba in rgbas]
+        # alphas = [rgba[:, -1:] for rgba in rgbas]
+
+        premul_planar_rgba = np.sum(rgba_s, 0)
+        rgb, a = get_rgb_a(premul_planar_rgba)
+
+        # clip saturated image regions (still premultiplied)
+        premul_planar_rgba /= np.maximum(a, 1)
+
+        # Transform premul to regular
+        assert rgb.any()
+        assert np.amax(a) == 1
+        rgb /= np.maximum(a, 1e-6)  # epsilon
+        assert np.amax(rgb) <= 1, np.amax(rgb)
+
+        # compress to gamma
+        rgb **= 1 / GAMMA
+
+        # uwu
+        rgba = np.moveaxis(premul_planar_rgba, 0, -1).copy("C")
+        del premul_planar_rgba, rgb, a
+
+        # print(rgba.shape)
+        # imageio.imsave(str(rgba.shape)+'.png', (255*rgba).astype(np.int8))
+        print(rgba)
+        img: AxesImage = line_plot.ax.imshow(rgba)
+        # img.set_zorder(-100)
+
+        # return render_rgba(line_plot)
+        return line_plot.fig
 
     top = "narrow"
     blue = "narrow"
@@ -111,10 +202,12 @@ def do_it(cfg):
     e = 0
 
     for freq in freqs:
-        plot_sinusoid(0, freq=freq, yscale=freq ** e, alpha=1, color=cmap(i))
+        plot_sinusoid(
+            0, freq=freq, yscale=freq ** e, alpha=1, fill_alpha=0.5, color=cmap(i)
+        )
         i += di
 
-    fig.savefig(f"{cfg.dim}.png", transparent=True)
+    compute_image().savefig(f"{cfg.dim}.png", transparent=True)
 
 
 if __name__ == "__main__":
