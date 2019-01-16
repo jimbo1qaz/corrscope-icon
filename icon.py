@@ -1,3 +1,4 @@
+import subprocess
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -25,14 +26,17 @@ def main():
     cfgs = [
         #
         Config(256, line_width=3, nline=3),
-        Config(128, line_width=2.5, nline=3),
         Config(96, line_width=2, nline=3),
         Config(48, line_width=1.5, nline=3),
         Config(32, line_width=1, nline=2),
         Config(16, line_width=0.75, nline=2),
     ]
+    fnames = []
     for cfg in cfgs:
-        do_it(cfg)
+        ret = do_it(cfg)
+        fnames.append(ret.fname)
+
+    subprocess.run(["magick", "convert"] + fnames + ["icon.ico"], check=True)
 
 
 @dataclass
@@ -41,7 +45,12 @@ class FigAx:
     ax: Axes
 
 
-def do_it(cfg):
+@dataclass
+class Ret:
+    fname: str
+
+
+def do_it(cfg) -> Ret:
     DPI = 96
     FLOAT = np.float32
     GAMMA = 2.2
@@ -204,7 +213,9 @@ def do_it(cfg):
         plot_sinusoid(0, freq=freq, yscale=freq ** e, color=cmap(i))
         i += di
 
-    compute_image(fill_alpha=0.5).savefig(f"{cfg.dim}.png", transparent=True)
+    fname = f"{cfg.dim}.png"
+    compute_image(fill_alpha=0.5).savefig(fname, transparent=True)
+    return Ret(fname)
 
 
 if __name__ == "__main__":
